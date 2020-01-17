@@ -57,6 +57,7 @@ RFC 6238                      HOTPTimeBased                     May 2011
 */
 
 func TestGenerateTOTP(t *testing.T) {
+	// https://www.rfc-editor.org/errata_search.php?rfc=6238
 	sha1Secret := []byte("12345678901234567890")
 	sha256Secret := []byte("12345678901234567890123456789012")
 	sha512Secret := []byte("1234567890123456789012345678901234567890123456789012345678901234")
