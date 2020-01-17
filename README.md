@@ -1,5 +1,5 @@
 # TOTP 
-
+[![Build Status](https://travis-ci.org/richardjennings/totp.svg?branch=master)](https://travis-ci.org/richardjennings/totp)
 ## About
 Implementation of the TOTP Time-Based One-Time Password Algorithm [RFC](https://tools.ietf.org/html/rfc6238) which is an extension of HOTP [RFC](https://tools.ietf.org/html/rfc4226#section-5.4)
 
