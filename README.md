@@ -1,15 +1,53 @@
 # TOTP 
-[![Build Status](https://travis-ci.org/richardjennings/totp.svg?branch=master)](https://travis-ci.org/richardjennings/totp)
+
+## Install
+```go install github.com/richardjennings/totp```
+
 ## About
-Implementation of the TOTP Time-Based One-Time Password Algorithm [RFC](https://tools.ietf.org/html/rfc6238) which is an extension of HOTP [RFC](https://tools.ietf.org/html/rfc4226#section-5.4)
+Implementation of the TOTP Time-Based One-Time Password Algorithm [RFC 6238](https://tools.ietf.org/html/rfc6238) 
+which is an extension of HOTP [RFC 4226](https://tools.ietf.org/html/rfc4226) with support for
+[Google Authenticator Key Uri Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format) and 
+`otpauth-migration` links.
 
-## Example
+## Features
 
+- [x] Generate TOTP codes and export as `otpauth` QR Code PNG images.
+- [x] Generate TOTP codes from Google Authenticator `otpauth-migration` export links.
+- [x] Convert Google Authenticator `otpauth-migration` export links into `otpauth` links.
+- [x] Generate TOTP codes from `otpauth` links.
+- [ ] Create `otpauth-migration` links from `otpauth` links.
+- [ ] Import `otpauth` links into Keychain.
+- [ ] Generate TOTP codes from Keychain.
+
+## Usage Examples
+
+Create a TOTP code, `otpauth` link and QR Code PNG image:
+```bash
+$ totp gen --timestamp 10000 --digits=6 --issuer=myorg --label=totp@myorg --secret=somesecret --qr-png qr.png       
+otpauth://totp/totp@myorg?algorithm=SHA1&digits=6&issuer=myorg&period=30&secret=ONXW2ZLTMVRXEZLU
+473009
+```
+![qr.png](qr.png)
+
+Import otpauth links from `otpauth-migration` Google Authenticator backup:
+```bash
+$ totp otpmigrate --link "otpauth-migration://offline?data=CiUKCnNvbWVzZWNyZXQSCnRvdHBAbXlvcmcaBW15b3JnIAEoATACEAEYASAA"
+otpauth://totp/totp@myorg?algorithm=SHA1&digits=6&issuer=myorg&period=30&secret=J5HFQVZSLJGFITKWKJMEKWSMKU
+```
+
+Generate a code from an `otpauth` URI:
+
+```bash
+$ totp otpauth --timestamp 10000  "otpauth://totp/totp@myorg?algorithm=SHA1&digits=6&issuer=myorg&period=30&secret=ONXW2ZLTMVRXEZLU" 
+totp@myorg 473009
+```
+
+Create a TOTP code programmatically:
 ```go
     package main
     
     import (
-    	"github.com/richardjennings/totp"
+    	"github.com/richardjennings/totp/pkg/totp"
     	"fmt"
     )
     func main() {
@@ -21,11 +59,6 @@ Implementation of the TOTP Time-Based One-Time Password Algorithm [RFC](https://
     		Algorithm:          totp.SHA1,
     		CurrentUnixTime:    59,
     	}
-    	fmt.Println(totp.GenerateTOTP(opts))
+    	fmt.Println(totp.GenerateTOTP(opts)) // 94287082
     }
 ```
-```
-$ go run main.go
-94287082
-```	
-	
