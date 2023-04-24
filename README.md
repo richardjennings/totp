@@ -15,6 +15,7 @@ which is an extension of HOTP [RFC 4226](https://tools.ietf.org/html/rfc4226) wi
 - [x] Generate TOTP codes from Google Authenticator `otpauth-migration` export links.
 - [x] Convert Google Authenticator `otpauth-migration` export links into `otpauth` links.
 - [x] Generate TOTP codes from `otpauth` links.
+- [x] Generate TOTP codes from base32 encoded secrets, e.g. as provided by GitHub
 - [ ] Create `otpauth-migration` links from `otpauth` links.
 - [ ] Import `otpauth` links into Keychain.
 - [ ] Generate TOTP codes from Keychain.
@@ -40,6 +41,13 @@ Generate a code from an `otpauth` URI:
 ```bash
 $ totp otpauth --timestamp 10000  "otpauth://totp/totp@myorg?algorithm=SHA1&digits=6&issuer=myorg&period=30&secret=ONXW2ZLTMVRXEZLU" 
 totp@myorg 473009
+```
+
+Generate a code from a GitHub TOTP base32 encoded shared secret
+```bash
+$ totp gen --encoded-secret "thesharedsecret"
+otpauth://totp?algorithm=SHA1&digits=6&period=30&secret=thesharedsecret
+123456
 ```
 
 Create a TOTP code programmatically:
