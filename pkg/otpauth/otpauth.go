@@ -135,7 +135,7 @@ func NewAuthURI(label string, algo string, digits int, issuer string, secret str
 	if len(secret) == 0 {
 		return a, errors.New("secret required")
 	}
-	a.Secret = base32.StdEncoding.EncodeToString([]byte(secret))
+	a.Secret = secret
 	if digits != 8 && digits != 6 {
 		return a, errors.New("digits must be 6 or 8")
 	}
@@ -223,7 +223,8 @@ func MigrationURIDecode(u *url.URL) (m MigrationURI, err error) {
 		case MigrationPayload_DIGIT_COUNT_EIGHT:
 			d = 8
 		}
-		uri, err := NewAuthURI(v.Name, a, d, v.Issuer, string(v.Secret), 30)
+		secret := base32.StdEncoding.EncodeToString(v.Secret)
+		uri, err := NewAuthURI(v.Name, a, d, v.Issuer, secret, 30)
 		if err != nil {
 			return m, err
 		}

@@ -15,6 +15,7 @@ which is an extension of HOTP [RFC 4226](https://tools.ietf.org/html/rfc4226) wi
 - [x] Generate TOTP codes from Google Authenticator `otpauth-migration` export links.
 - [x] Convert Google Authenticator `otpauth-migration` export links into `otpauth` links.
 - [x] Generate TOTP codes from `otpauth` links.
+- [x] Generate TOTP codes from base32 encoded secrets, e.g. as provided by Github
 - [ ] Create `otpauth-migration` links from `otpauth` links.
 - [ ] Import `otpauth` links into Keychain.
 - [ ] Generate TOTP codes from Keychain.
