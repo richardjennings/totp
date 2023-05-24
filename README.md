@@ -45,7 +45,7 @@ totp@myorg 473009
 
 Generate a code from a GitHub TOTP base32 encoded shared secret
 ```bash
-$ totp gen --encoded-secret "thesharedsecret"
+$ totp gen --secret "thesharedsecret"
 otpauth://totp?algorithm=SHA1&digits=6&period=30&secret=thesharedsecret
 123456
 ```
