@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/base32"
 	"fmt"
 	"github.com/richardjennings/totp/pkg/otpauth"
 	"github.com/skip2/go-qrcode"
@@ -25,7 +24,6 @@ func init() {
 	genCmd.Flags().StringVar(&issuer, "issuer", "", "Issuer")
 	genCmd.Flags().StringVar(&label, "label", "", "Label")
 	genCmd.Flags().StringVar(&secret, "secret", "", "Secret")
-	genCmd.Flags().StringVar(&encodedSecret, "encoded-secret", "", "--encoded-secret=")
 	genCmd.Flags().StringVar(&algo, "algorithm", "SHA1", "Algorithm")
 	genCmd.Flags().IntVar(&digits, "digits", 6, "Number of digits")
 	genCmd.Flags().IntVar(&period, "period", 30, "Period")
@@ -40,7 +38,7 @@ var genCmd = &cobra.Command{
 		var uri otpauth.AuthURI
 		var err error
 		if encodedSecret == "" {
-			encodedSecret = base32.StdEncoding.EncodeToString([]byte(secret))
+			encodedSecret = secret
 		}
 		uri, err = otpauth.NewAuthURI(label, algo, digits, issuer, encodedSecret, period)
 		if err != nil {

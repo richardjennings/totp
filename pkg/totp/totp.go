@@ -10,7 +10,6 @@ import (
 	"hash"
 	"net/url"
 	"strconv"
-	"time"
 )
 
 type Algo int
@@ -51,9 +50,6 @@ func (o Opts) Algo() func() hash.Hash {
 // Generate a TOTP
 func GenerateTOTP(opts Opts) (code string) {
 	t := opts.CurrentUnixTime
-	if t == 0 {
-		t = uint64(time.Now().Unix())
-	}
 	// calculate number of timesteps
 	steps := t / uint64(opts.Timestep)
 

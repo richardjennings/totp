@@ -8,6 +8,7 @@ import (
 	"github.com/richardjennings/totp/pkg/totp"
 	"net/url"
 	"strconv"
+	"time"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -28,7 +29,7 @@ type (
 
 		// REQUIRED: The secret parameter is an arbitrary key value encoded in Base32 according to RFC 3548.
 		// The padding specified in RFC 3548 section 2.2 is not required and should be omitted.
-		Secret string
+		Secret []byte
 
 		// STRONGLY RECOMMENDED: The issuer parameter is a string value indicating the provider or service this account is
 		// associated with, URL-encoded according to RFC 3986.
@@ -100,7 +101,13 @@ func AuthURIFromString(otpAuth string) (uri AuthURI, err error) {
 	}
 	uri.Issuer = c.Get("issuer")
 
-	uri.Secret = c.Get("secret")
+	secStr := c.Get("secret")
+
+	if s, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(secStr); err == nil {
+		uri.Secret = s
+	} else {
+		uri.Secret = []byte(secStr)
+	}
 
 	switch c.Get("algorithm") {
 	case "SHA1":
@@ -109,6 +116,8 @@ func AuthURIFromString(otpAuth string) (uri AuthURI, err error) {
 		uri.Algorithm = totp.SHA256
 	case "SHA512":
 		uri.Algorithm = totp.SHA512
+	default:
+		uri.Algorithm = totp.SHA1
 	}
 
 	return
@@ -135,7 +144,7 @@ func NewAuthURI(label string, algo string, digits int, issuer string, secret str
 	if len(secret) == 0 {
 		return a, errors.New("secret required")
 	}
-	a.Secret = secret
+	a.Secret = []byte(secret)
 	if digits != 8 && digits != 6 {
 		return a, errors.New("digits must be 6 or 8")
 	}
@@ -167,7 +176,7 @@ func (a AuthURI) URL() *url.URL {
 	}
 	q.Add("digits", strconv.Itoa(a.Digits))
 	q.Add("period", strconv.Itoa(a.Period))
-	q.Add("secret", a.Secret)
+	q.Add("secret", string(a.Secret))
 	if len(a.Issuer) > 0 {
 		q.Add("issuer", a.Issuer)
 	}
@@ -236,11 +245,10 @@ func MigrationURIDecode(u *url.URL) (m MigrationURI, err error) {
 
 // GenerateTOTPFromAuthURI generates a TOTP code from an AuthURI
 func GenerateTOTPFromAuthURI(otpAuth AuthURI, timestamp string) (code string, err error) {
-	var secret []byte
 	var t int
-	secret, err = base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(otpAuth.Secret)
-	if err != nil {
-		return
+	secret, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(string(otpAuth.Secret))
+	if err != nil || len(secret) == 0 {
+		secret = otpAuth.Secret
 	}
 	opts := totp.Opts{
 		Timestep:  uint(otpAuth.Period),
@@ -255,6 +263,8 @@ func GenerateTOTPFromAuthURI(otpAuth AuthURI, timestamp string) (code string, er
 			return
 		}
 		opts.CurrentUnixTime = uint64(t)
+	} else {
+		opts.CurrentUnixTime = uint64(time.Now().Unix())
 	}
 
 	code = totp.GenerateTOTP(opts)
